@@ -1,13 +1,14 @@
 package org.example.teamshop.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.example.teamshop.Exception.ResourceNotFoundException;
 import org.example.teamshop.dto.ClientDTO;
 import org.example.teamshop.mapper.ClientMapper;
 import org.example.teamshop.model.Client;
 import org.example.teamshop.repository.ClientRepository;
 import org.example.teamshop.request.CreateClientRequest;
 import org.example.teamshop.request.UpdateClientRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,7 @@ public class ClientService implements IClientService {
     public ClientDTO findClientById(Long id) {
         return clientRepository.findById(id)
                 .map(mapper::clientToClientDTO)
-                .orElseThrow(() -> new RuntimeException("Client not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Client with ID " + id + " not found"));
     }
 
     @Override
@@ -33,7 +34,7 @@ public class ClientService implements IClientService {
             clientRepository.save(newClient);
             return mapper.clientToClientDTO(newClient);
         } catch (ObjectOptimisticLockingFailureException e) {
-            throw new RuntimeException("Конфлікт: клієнт був змінений або видалений іншим користувачем.");
+            throw new ResourceNotFoundException("Conflict! Client was changed or deleted by another user");
         }
     }
 
