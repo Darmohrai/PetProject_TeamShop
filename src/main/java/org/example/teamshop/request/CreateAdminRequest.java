@@ -20,7 +20,7 @@ public class CreateAdminRequest {
 //    Contains at least one digit.
 //    Contains at least one special character (e.g., !@#$%^&*).
 //    No spaces allowed.
-    @NotNull
+    @NotEmpty
     @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
             message = "Not valid Password format")
     private String password;

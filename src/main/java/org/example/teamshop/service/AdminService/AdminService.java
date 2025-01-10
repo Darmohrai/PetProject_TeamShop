@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AdminService implements IAdminService {
     private final AdminRepository adminRepository;
+
     @Autowired
     private final AdminMapper adminMapper;
 
