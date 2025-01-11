@@ -11,16 +11,22 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateClientRequest {
+public class CreateAdminRequest {
     @NotNull
     private String name;
-
-    @NotNull
+//    At least 8 characters.
+//    Contains at least one uppercase letter.
+//    Contains at least one lowercase letter.
+//    Contains at least one digit.
+//    Contains at least one special character (e.g., !@#$%^&*).
+//    No spaces allowed.
+    @NotEmpty
     @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
             message = "Not valid Password format")
     private String password;
-
     @Email
     @NotEmpty
     private String email;
+    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "incorrect phone format")
+    private String phone;
 }

@@ -1,17 +1,18 @@
 package org.example.teamshop.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
-@Entity
-@NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "shop_client")
-
-public class Client {
-
+@NoArgsConstructor
+@Entity
+@Table(name = "shop_admin")
+public class Admin {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
@@ -22,9 +23,5 @@ public class Client {
     private String email;
 
     @Column(unique = true)
-    private int cartId;
-
-    @Column(unique = true)
-    private int orderId;
-
+    private String phone;
 }

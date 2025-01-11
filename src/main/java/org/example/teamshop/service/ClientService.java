@@ -29,12 +29,15 @@ public class ClientService implements IClientService {
     @Override
     public ClientDTO addClient(CreateClientRequest createClientRequest) {
         // rewrite try-catch
+        if (clientRepository.existsByEmail(createClientRequest.getEmail())) {
+            throw new ResourceNotFoundException("A client with this email already exists");
+        }
         try {
             Client newClient = mapper.createClientRequestToClient(createClientRequest);
             clientRepository.save(newClient);
             return mapper.clientToClientDTO(newClient);
         } catch (ObjectOptimisticLockingFailureException e) {
-            throw new ResourceNotFoundException("Conflict! Client was changed or deleted by another user");
+            throw new ResourceNotFoundException("Conflict! Bad request");
         }
     }
 

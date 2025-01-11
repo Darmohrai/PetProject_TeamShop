@@ -7,17 +7,18 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.teamshop.Exception.ResourceNotFoundException;
 import org.example.teamshop.dto.ClientDTO;
 import org.example.teamshop.request.CreateClientRequest;
 import org.example.teamshop.request.UpdateClientRequest;
 import org.example.teamshop.service.IClientService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
-@Controller
-@RequestMapping("/client")
+@RestController
+@RequestMapping("${api.path}/client/")
 public class ClientController {
     private final IClientService clientService;
 
@@ -53,8 +54,24 @@ public class ClientController {
     public ResponseEntity<ClientDTO> createClient(
             @Parameter(description = "JSON file of client (without ID)", required = true)
             @RequestBody @Valid CreateClientRequest createClientRequest) {
-        ClientDTO clientDTO = clientService.addClient(createClientRequest);
-        return ResponseEntity.ok(clientDTO);
+        try {
+            ClientDTO clientDTO = clientService.addClient(createClientRequest);
+            return ResponseEntity.ok(clientDTO);
+        }
+        catch (ResourceNotFoundException e) {
+            System.out.println(e.getMessage());
+            if (e.getMessage().equals("A client with this email already exists")) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            }
+            else if (e.getMessage().equals("Conflict! Bad request")) {
+                return ResponseEntity.badRequest().build();
+            }
+            return ResponseEntity.badRequest().build();
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @Operation(summary = "Update an existing client")
