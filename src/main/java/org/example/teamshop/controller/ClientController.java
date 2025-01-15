@@ -11,7 +11,7 @@ import org.example.teamshop.Exception.ResourceNotFoundException;
 import org.example.teamshop.dto.ClientDTO;
 import org.example.teamshop.request.CreateClientRequest;
 import org.example.teamshop.request.UpdateClientRequest;
-import org.example.teamshop.service.IClientService;
+import org.example.teamshop.service.ClientService.IClientService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -57,18 +57,15 @@ public class ClientController {
         try {
             ClientDTO clientDTO = clientService.addClient(createClientRequest);
             return ResponseEntity.ok(clientDTO);
-        }
-        catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException e) {
             System.out.println(e.getMessage());
             if (e.getMessage().equals("A client with this email already exists")) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).build();
-            }
-            else if (e.getMessage().equals("Conflict! Bad request")) {
+            } else if (e.getMessage().equals("Conflict! Bad request")) {
                 return ResponseEntity.badRequest().build();
             }
             return ResponseEntity.badRequest().build();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -83,7 +80,7 @@ public class ClientController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<ClientDTO> updateClient(
-            @Parameter(description = "The client data to update", required = true) @RequestBody UpdateClientRequest updateClientRequest,
+            @Parameter(description = "The client data to update", required = true) @RequestBody @Valid UpdateClientRequest updateClientRequest,
             @Parameter(description = "The client ID to update") @PathVariable Long id) {
         ClientDTO clientDTO = clientService.updateClient(updateClientRequest, id);
         return ResponseEntity.ok(clientDTO);

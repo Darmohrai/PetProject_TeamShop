@@ -22,7 +22,7 @@ public class Client {
     private String email;
 
     @Column(unique = true)
-    private int cartId;
+    private Long cartId;
 
     @Column(unique = true)
     private int orderId;

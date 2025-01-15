@@ -1,22 +1,24 @@
-package org.example.teamshop.service;
+package org.example.teamshop.service.ClientService;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.example.teamshop.Exception.ResourceNotFoundException;
 import org.example.teamshop.dto.ClientDTO;
 import org.example.teamshop.mapper.ClientMapper;
+import org.example.teamshop.model.Cart;
 import org.example.teamshop.model.Client;
 import org.example.teamshop.repository.ClientRepository;
 import org.example.teamshop.request.CreateClientRequest;
 import org.example.teamshop.request.UpdateClientRequest;
+import org.example.teamshop.service.CartService.CartService;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
 public class ClientService implements IClientService {
-
     private final ClientRepository clientRepository;
+    private final CartService cartService;
     private final ClientMapper mapper;
 
     @Override
@@ -28,12 +30,14 @@ public class ClientService implements IClientService {
 
     @Override
     public ClientDTO addClient(CreateClientRequest createClientRequest) {
-        // rewrite try-catch
         if (clientRepository.existsByEmail(createClientRequest.getEmail())) {
             throw new ResourceNotFoundException("A client with this email already exists");
         }
         try {
             Client newClient = mapper.createClientRequestToClient(createClientRequest);
+            clientRepository.save(newClient);
+            Long cartId = cartService.createNewCart(newClient.getId());
+            newClient.setCartId(cartId);
             clientRepository.save(newClient);
             return mapper.clientToClientDTO(newClient);
         } catch (ObjectOptimisticLockingFailureException e) {
@@ -53,6 +57,7 @@ public class ClientService implements IClientService {
     @Override
     public void deleteClient(Long id) {
         Client client = clientRepository.findById(id).orElseThrow(() -> new RuntimeException("Client not found"));
+        cartService.deleteCart(client.getCartId());
         clientRepository.delete(client);
     }
 
