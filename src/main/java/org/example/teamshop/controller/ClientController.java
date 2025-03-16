@@ -7,12 +7,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.teamshop.Exception.ResourceNotFoundException;
 import org.example.teamshop.dto.ClientDTO;
-import org.example.teamshop.request.CreateClientRequest;
 import org.example.teamshop.request.UpdateClientRequest;
 import org.example.teamshop.service.ClientService.IClientService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,11 +25,13 @@ public class ClientController {
             @ApiResponse(responseCode = "400", description = "Invalid ID supplied"),
             @ApiResponse(responseCode = "404", description = "Client not found")
     })
+
     @GetMapping("/{id}")
     public ResponseEntity<ClientDTO> getClientById(
             @Parameter(description = "ID of the client to be fetched", required = true, example = "1")
             @PathVariable Long id) {
         try {
+
             ClientDTO clientDTO = clientService.findClientById(id);
             return ResponseEntity.ok(clientDTO);
         } catch (EntityNotFoundException e) {
@@ -41,33 +40,6 @@ public class ClientController {
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
             return ResponseEntity.badRequest().build();
-        }
-    }
-
-    @Operation(summary = "Add client to DB")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Client successfully added to the database"),
-            @ApiResponse(responseCode = "400", description = "Invalid client data provided. The request body is missing required fields or contains invalid data."),
-            @ApiResponse(responseCode = "500", description = "Internal server error. Something went wrong on the server side.")
-    })
-    @PostMapping
-    public ResponseEntity<ClientDTO> createClient(
-            @Parameter(description = "JSON file of client (without ID)", required = true)
-            @RequestBody @Valid CreateClientRequest createClientRequest) {
-        try {
-            ClientDTO clientDTO = clientService.addClient(createClientRequest);
-            return ResponseEntity.ok(clientDTO);
-        } catch (ResourceNotFoundException e) {
-            System.out.println(e.getMessage());
-            if (e.getMessage().equals("A client with this email already exists")) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).build();
-            } else if (e.getMessage().equals("Conflict! Bad request")) {
-                return ResponseEntity.badRequest().build();
-            }
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
