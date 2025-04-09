@@ -10,9 +10,9 @@ import org.example.teamshop.model.Client;
 import org.example.teamshop.repository.ClientRepository;
 import org.example.teamshop.request.CreateClientRequest;
 import org.example.teamshop.request.UpdateClientRequest;
-import org.example.teamshop.securityModel.SecurityClient;
 import org.example.teamshop.service.CartService.CartService;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -21,6 +21,8 @@ public class ClientService implements IClientService {
     private final ClientRepository clientRepository;
     private final CartService cartService;
     private final ClientMapper mapper;
+
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public ClientDTO findClientById(Long id) {
@@ -36,6 +38,7 @@ public class ClientService implements IClientService {
         }
         try {
             Client newClient = mapper.createClientRequestToClient(createClientRequest);
+            newClient.setPassword(passwordEncoder.encode(createClientRequest.getPassword()));
             clientRepository.save(newClient);
             Long cartId = cartService.createNewCart(newClient.getId());
             newClient.setCartId(cartId);
@@ -62,11 +65,5 @@ public class ClientService implements IClientService {
         Client client = clientRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Client not found"));
         cartService.deleteCart(client.getCartId());
         clientRepository.delete(client);
-    }
-
-    @Override
-    public boolean clientAccess(SecurityClient securityClient, Long requestId) {
-        Client client = clientRepository.findById(requestId).orElseThrow(() -> new SecurityException("Forbidden"));
-        return client.getEmail().equals(securityClient.getUsername());
     }
 }

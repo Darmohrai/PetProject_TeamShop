@@ -12,9 +12,13 @@ public class SecurityClient implements UserDetails {
 
     private final Client client;
 
+    public Long getClientId() {
+        return client.getId();
+    }
+
     @Override
     public List<SimpleGrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        return List.of(new SimpleGrantedAuthority("ROLE_CLIENT"));
     }
 
     @Override

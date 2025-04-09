@@ -15,6 +15,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -26,6 +28,9 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 public class ClientServiceTest {
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private ClientService clientService;
@@ -82,9 +87,11 @@ public class ClientServiceTest {
         CreateClientRequest createClientRequest = new CreateClientRequest("John Doe", "StrongP@ss1", "johndoe@example.com");
         Client newClient = new Client(1L, "John Doe", "StrongP@ss1", "johndoe@example.com", 1L, 1);
         ClientDTO clientDTO = new ClientDTO(1L, "John Doe", "StrongP@ss1", "johndoe@example.com", 1L, 1);
+        PasswordEncoder encoder = new BCryptPasswordEncoder();
 
         when(clientRepository.existsByEmail(createClientRequest.getEmail())).thenReturn(false);
         when(clientMapper.createClientRequestToClient(createClientRequest)).thenReturn(newClient);
+        when(passwordEncoder.encode(createClientRequest.getPassword())).thenReturn(encoder.encode(createClientRequest.getPassword()));
         when(cartService.createNewCart(newClient.getId())).thenReturn(1L);
         when(clientRepository.save(newClient)).thenReturn(newClient);
         when(clientMapper.clientToClientDTO(newClient)).thenReturn(clientDTO);
@@ -124,8 +131,10 @@ public class ClientServiceTest {
     public void testAddClient_ShouldThrowException_WhenOptimisticLockingFails() {
         CreateClientRequest createClientRequest = new CreateClientRequest("John Doe", "StrongP@ss1", "johndoe@example.com");
         Client newClient = new Client(1L, "John Doe", "StrongP@ss1", "johndoe@example.com", 1L, 1);
+        PasswordEncoder encoder = new BCryptPasswordEncoder();
 
         when(clientRepository.existsByEmail(createClientRequest.getEmail())).thenReturn(false);
+        when(passwordEncoder.encode(createClientRequest.getPassword())).thenReturn(encoder.encode(createClientRequest.getPassword()));
         when(clientMapper.createClientRequestToClient(createClientRequest)).thenReturn(newClient);
         when(clientRepository.save(newClient)).thenThrow(new ObjectOptimisticLockingFailureException(Client.class, 1L));
 
