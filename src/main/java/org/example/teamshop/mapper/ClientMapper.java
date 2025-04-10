@@ -5,26 +5,17 @@ import org.example.teamshop.dto.ClientDTO;
 import org.example.teamshop.model.Client;
 import org.example.teamshop.request.CreateClientRequest;
 import org.example.teamshop.request.UpdateClientRequest;
+import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
-@RequiredArgsConstructor
-@Component
-public class ClientMapper {
-    private final ModelMapper modelMapper;
+@Mapper(componentModel = "spring")
+public interface ClientMapper {
+    Client createClientRequestToClient(CreateClientRequest request);
 
-    public Client createClientRequestToClient(CreateClientRequest request) {
-        return modelMapper.map(request, Client.class);
-    }
+    ClientDTO clientToClientDTO(Client client);
 
-    public ClientDTO clientToClientDTO(Client client) {
-        return modelMapper.map(client, ClientDTO.class);
-    }
-
-    public void updateClientRequestToClient(UpdateClientRequest request, Client client) {
-        if (request.getEmail() != null) {
-            client.setEmail(request.getEmail());
-        }
-    }
+    void updateClientRequestToClient(UpdateClientRequest request, @MappingTarget Client client);
 }
