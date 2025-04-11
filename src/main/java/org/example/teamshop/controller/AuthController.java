@@ -12,10 +12,8 @@ import org.example.teamshop.request.LoginRequest;
 import org.example.teamshop.service.ClientService.ClientService;
 import org.example.teamshop.service.SecurityServices.CustomUserDetailsService.CustomUserDetailsService;
 import org.example.teamshop.service.SecurityServices.JwtService.JwtService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,17 +31,13 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
-            );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(loginRequest.getEmail());
-            String token = jwtService.generateToken(userDetails);
-            return ResponseEntity.ok(token);
-        } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid credentials");
-        }
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(loginRequest.getEmail());
+        String token = jwtService.generateToken(userDetails);
+        return ResponseEntity.ok(token);
     }
 
     @Operation(summary = "Add client to DB")
@@ -59,6 +53,4 @@ public class AuthController {
         ClientDTO clientDTO = clientService.addClient(createClientRequest);
         return ResponseEntity.ok(clientDTO);
     }
-
-    // should be created admin registration
 }

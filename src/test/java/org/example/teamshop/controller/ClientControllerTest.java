@@ -18,7 +18,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.TestExecutionEvent;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -74,10 +76,9 @@ public class ClientControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "tester", roles = CLIENT_ROLE)
+    @WithUserDetails(value = "john@example.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void testGetClientById_ClientExists_WhenClientHasAccess() throws Exception {
-        mockMvc.perform(get(apiPath + "/client/{id}", testClient.getId())
-                        .with(user(securityClient)))
+        mockMvc.perform(get(apiPath + "/client/{id}", testClient.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(testClient.getId()))
                 .andExpect(jsonPath("$.name").value(testClient.getName()))
@@ -87,7 +88,7 @@ public class ClientControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "tester", roles = CLIENT_ROLE)
+    @WithUserDetails(value = "john@example.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void testGetClientById_ClientExists_WhenClientHasNotAccess() throws Exception {
         Client otherClient = clientRepository.save(
                 new Client(null, "Notjohn Doe", "NOTStrongP@ss1", "NOTjohn@example.com", null, null)
@@ -99,7 +100,7 @@ public class ClientControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "tester", roles = CLIENT_ROLE)
+    @WithUserDetails(value = "john@example.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void testGetClientById_WhenClientDoesNotExist() throws Exception {
         Long nonExistentClientId = Long.MAX_VALUE;
 
@@ -109,7 +110,7 @@ public class ClientControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "tester", roles = CLIENT_ROLE)
+    @WithUserDetails(value = "john@example.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void testGetClientById_WhenIllegalArgumentException() throws Exception {
         String badRequest = "badRequest";
 
@@ -119,7 +120,7 @@ public class ClientControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "tester", roles = CLIENT_ROLE)
+    @WithUserDetails(value = "john@example.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void testUpdateClient_ClientExists_WhenClientHasAccess() throws Exception {
         UpdateClientRequest updateClientRequest = new UpdateClientRequest("newEmail@gmail.com");
 
@@ -136,7 +137,7 @@ public class ClientControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "tester", roles = CLIENT_ROLE)
+    @WithUserDetails(value = "john@example.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void testUpdateClient_ClientExist_WhenClientHasNoAccess() throws Exception {
         Client otherTestClient = clientRepository.save(
                 new Client(null, "Notjohn Doe", "StrongP@ss1", "NOTjohn@example.com", null, null)
@@ -151,7 +152,7 @@ public class ClientControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "tester", roles = CLIENT_ROLE)
+    @WithUserDetails(value = "john@example.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void testUpdateClient_ClientDoesNotExist() throws Exception {
         Long nonExistentClientId = Long.MAX_VALUE;
         UpdateClientRequest updateClientRequest = new UpdateClientRequest("newEmail@gmail.com");
@@ -164,7 +165,7 @@ public class ClientControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "tester", roles = CLIENT_ROLE)
+    @WithUserDetails(value = "john@example.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void updateClient_BadRequest() throws Exception {
         UpdateClientRequest updateClientRequest = new UpdateClientRequest("wrongValue");
 
@@ -176,7 +177,7 @@ public class ClientControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "tester", roles = CLIENT_ROLE)
+    @WithUserDetails(value = "john@example.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void testDeleteClient_ClientExists_WhenClientHasAccess() throws Exception {
         mockMvc.perform(delete(apiPath + "/client/{id}", testClient.getId())
                         .with(user(securityClient)))
@@ -184,7 +185,7 @@ public class ClientControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "tester", roles = CLIENT_ROLE)
+    @WithUserDetails(value = "john@example.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void testDeleteClient_ClientExists_WhenClientHasNoAccess() throws Exception {
         Client otherTestClient = clientRepository.save(
                 new Client(null, "Notjohn Doe", "StrongP@ss1", "NOTjohn@example.com", null, null)

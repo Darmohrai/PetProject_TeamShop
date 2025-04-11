@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.TestExecutionEvent;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -86,6 +88,7 @@ public class CartControllerTest {
     }
 
     @Test
+    @WithUserDetails(value = "john@example.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void testGetCartByClientId_WhenClientDoesNotHaveAccess() throws Exception {
         Client unauthorizedClient = new Client(null, "John Unauthorized", "StrongP@ss1", "unauthorized@example.com", null, 2);
         clientRepository.save(unauthorizedClient);

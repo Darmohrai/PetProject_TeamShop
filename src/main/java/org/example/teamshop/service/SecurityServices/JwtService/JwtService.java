@@ -1,10 +1,13 @@
 package org.example.teamshop.service.SecurityServices.JwtService;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.example.teamshop.Exception.JwtTokenExpiredException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -31,6 +34,7 @@ public class JwtService {
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        checkTokenExpired(JWT.decode(token));
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
@@ -49,13 +53,17 @@ public class JwtService {
                 .compact();
     }
 
-    private boolean isTokenExpired(String token) {
-        return extractClaim(token, Claims::getExpiration).before(new Date());
+    private void checkTokenExpired(DecodedJWT decodedJWT) {
+        Date expiredAt = decodedJWT.getExpiresAt();
+        if (expiredAt.before(new Date())) {
+            throw new JwtTokenExpiredException("Token has expired", expiredAt.toInstant());
+        }
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {
+        checkTokenExpired(JWT.decode(token));
         final String username = extractUsername(token);
         return (token != null && userDetails != null) &&
-                (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+                (username.equals(userDetails.getUsername()));
     }
 }

@@ -42,15 +42,4 @@ public class AdminController {
         adminService.deleteAdmin(id);
     }
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiResponse> handleResourceNotFoundException(ResourceNotFoundException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).
-                body(new ApiResponse("Resource Not Found", e.getMessage()));
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse> handleException(Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).
-                body(new ApiResponse("Internal Server Error", e.getMessage()));
-    }
 }
