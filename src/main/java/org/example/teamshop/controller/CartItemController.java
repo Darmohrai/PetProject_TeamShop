@@ -6,10 +6,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.teamshop.annotation.PermissionCheck.PermissionCheck;
 import org.example.teamshop.dto.CartItemDTO;
 import org.example.teamshop.request.UpdateCartItemRequest;
 import org.example.teamshop.service.CartItemService.CartItemService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,9 +29,11 @@ public class CartItemController {
             @ApiResponse(responseCode = "404", description = "Item not found")
     })
     @GetMapping("/{productId}")
+    @PermissionCheck("#permissionHandler.hasPermissionByClientId(#clientId)")
     public ResponseEntity<CartItemDTO> getCartItemByProductId(@Parameter(description = "Id of product")
-                                                              @PathVariable Long productId, Long cartId) {
-        CartItemDTO cartItemDTO = cartItemService.getCartItemByProductId(productId, cartId);
+                                                              @PathVariable Long productId,
+                                                              @RequestBody Long clientId) {
+        CartItemDTO cartItemDTO = cartItemService.getCartItemByProductId(productId);
         return ResponseEntity.ok(cartItemDTO);
     }
 
@@ -40,6 +44,7 @@ public class CartItemController {
             @ApiResponse(responseCode = "404", description = "Cart not found")
     })
     @PutMapping("/put")
+    @PermissionCheck("#permissionHandler.hasPermissionForCart(#updateCartItemRequest.cartId)")
     public ResponseEntity<CartItemDTO> putCartItem(@RequestBody @Valid UpdateCartItemRequest updateCartItemRequest) {
         CartItemDTO cartItemDTO = cartItemService.updateCartItem(updateCartItemRequest);
         return ResponseEntity.ok().body(cartItemDTO);
@@ -51,8 +56,9 @@ public class CartItemController {
             @ApiResponse(responseCode = "404", description = "Cart not found")
     })
     @GetMapping("/all")
-    public ResponseEntity<List<CartItemDTO>> getAllCartItems(@RequestParam Long cartId) {
-        List<CartItemDTO> itemDTOS = cartItemService.getAllCartItems(cartId);
+    @PermissionCheck("@permissionHandler.hasPermissionByClientId(#clientId)")
+    public ResponseEntity<List<CartItemDTO>> getAllCartItems(@RequestBody Long clientId) {
+        List<CartItemDTO> itemDTOS = cartItemService.getAllCartItems(clientId);
         return ResponseEntity.ok(itemDTOS);
     }
 
@@ -63,9 +69,10 @@ public class CartItemController {
             @ApiResponse(responseCode = "404", description = "Cart item not found")
     })
     @DeleteMapping("/{productId}")
+    @PermissionCheck("@permissionHandler.hasPermissionByClientId(#clientId)")
     public ResponseEntity<String> deleteCartItem(@Parameter(description = "Id of product") @PathVariable Long productId,
-                                                 @RequestParam Long cartId) {
-        cartItemService.deleteCartItem(productId, cartId);
+                                                 @RequestBody Long clientId) {
+        cartItemService.deleteCartItem(productId);
         return ResponseEntity.ok().build();
     }
 }

@@ -43,6 +43,17 @@ public class CartService implements ICartService {
     }
 
     @Override
+    public Cart findCartEntityByClientId(Long clientId) {
+        return cartRepository.findByClientId(clientId);
+    }
+
+    @Override
+    public CartDTO findCartDTOByClientId(Long clientId) {
+        Cart cart = cartRepository.findByClientId(clientId);
+        return cartMapper.toCartDTO(cart);
+    }
+
+    @Override
     public void deleteCart(Long id) {
         Cart cart = findCartEntityById(id);
         cartRepository.delete(cart);

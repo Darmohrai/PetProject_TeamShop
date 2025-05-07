@@ -2,7 +2,10 @@ package org.example.teamshop.service.CartItemService;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.example.teamshop.Exception.PermissionDeniedException;
+import org.example.teamshop.dto.CartDTO;
 import org.example.teamshop.dto.CartItemDTO;
+import org.example.teamshop.dto.ClientDTO;
 import org.example.teamshop.mapper.CartItemMapper;
 import org.example.teamshop.model.Cart;
 import org.example.teamshop.model.CartItem;
@@ -11,9 +14,10 @@ import org.example.teamshop.repository.CartRepository;
 import org.example.teamshop.repository.ProductRepository;
 import org.example.teamshop.request.UpdateCartItemRequest;
 import org.example.teamshop.service.CartService.CartService;
+import org.example.teamshop.service.ClientService.ClientService;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -24,6 +28,8 @@ public class CartItemService implements ICartItemService {
     private final CartItemMapper cartItemMapper;
     private final ProductRepository productRepository;
     private final CartService cartService;
+    private final ClientService clientService;
+
 
     @Override
     public CartItemDTO addNewCartItem(UpdateCartItemRequest request) {
@@ -42,7 +48,7 @@ public class CartItemService implements ICartItemService {
     public CartItemDTO updateCartItem(UpdateCartItemRequest request) {
         Cart cart = cartService.findCartEntityById(request.getCartId());
         if (request.getQuantity() == 0) {
-            deleteCartItem(request.getProductId(), request.getCartId());
+            deleteCartItem(request.getProductId());
             return null;
         }
         if (cart.getItems().isEmpty()) return addNewCartItem(request);
@@ -59,34 +65,29 @@ public class CartItemService implements ICartItemService {
     }
 
     @Override
-    public CartItemDTO getCartItemByProductId(Long productId, Long cartId) {
-        Cart cart = cartService.findCartEntityById(cartId);
-        for (CartItem cartItem1 : cart.getItems()) {
-            if (cartItem1.getProductId().equals(productId)) {
-                return cartItemMapper.toCartItemDTO(cartItem1);
-            }
-        }
-        throw new EntityNotFoundException("There is no such type of product in this cart");
+    public CartItemDTO getCartItemByProductId(Long productId) {
+        CartDTO cartDTO = cartService.findCartDTOByClientId(clientService.findAuthorizedClientId());
+        return cartDTO.getItems().stream()
+                .filter(item -> item.getProductId().equals(productId))
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("There is no such type of product in this cart"));
     }
 
     @Override
-    public List<CartItemDTO> getAllCartItems(Long cartId) {
-        Cart cart = cartService.findCartEntityById(cartId);
-        List<CartItem> cartItems = cart.getItems();
-        List<CartItemDTO> cartItemDTOs = new ArrayList<>();
-        for (CartItem cartItem1 : cartItems) {
-            cartItemDTOs.add(cartItemMapper.toCartItemDTO(cartItem1));
-        }
-        return cartItemDTOs;
+    public List<CartItemDTO> getAllCartItems(Long clientId) {
+        CartDTO cartDTO = cartService.findCartDTOByClientId(clientId);
+        return cartDTO.getItems();
     }
 
     @Override
-    public void deleteCartItem(Long productId, Long cartId) {
-        Cart cart = cartService.findCartEntityById(cartId);
-        for (CartItem cartItem1 : cart.getItems()) {
-            if (cartItem1.getProductId().equals(productId)) {
-                cart.getItems().remove(cartItem1);
-                cartItemRepository.delete(cartItem1);
+    public void deleteCartItem(Long productId) {
+        Cart cart = cartService.findCartEntityByClientId(clientService.findAuthorizedClientId());
+        Iterator<CartItem> iterator = cart.getItems().iterator();
+        while (iterator.hasNext()) {
+            CartItem cartItem = iterator.next();
+            if (cartItem.getProductId().equals(productId)) {
+                iterator.remove();
+                cartItemRepository.delete(cartItem);
                 cartRepository.save(cart);
                 return;
             }

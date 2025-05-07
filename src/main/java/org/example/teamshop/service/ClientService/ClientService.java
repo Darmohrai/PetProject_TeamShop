@@ -12,6 +12,8 @@ import org.example.teamshop.request.CreateClientRequest;
 import org.example.teamshop.request.UpdateClientRequest;
 import org.example.teamshop.service.CartService.CartService;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -65,5 +67,20 @@ public class ClientService implements IClientService {
         Client client = clientRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Client not found"));
         cartService.deleteCart(client.getCartId());
         clientRepository.delete(client);
+    }
+
+    public ClientDTO findClientByEmail(String email) {
+        Client client = clientRepository.findByEmail(email);
+        return mapper.clientToClientDTO(client);
+    }
+
+    public Long findAuthorizedClientId() {
+        Client client = clientRepository.findByEmail(findAuthorizedClientEmail());
+        return client.getId();
+    }
+
+    public String findAuthorizedClientEmail() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth.getName();
     }
 }

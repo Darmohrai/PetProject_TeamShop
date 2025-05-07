@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.teamshop.annotation.CustomAccessRightsCheck.CustomAccessRightsCheck;
+import org.example.teamshop.annotation.PermissionCheck.PermissionCheck;
 import org.example.teamshop.dto.CartDTO;
 import org.example.teamshop.service.CartService.CartService;
 import org.example.teamshop.service.ClientService.ClientService;
@@ -29,8 +29,8 @@ public class CartController {
             @ApiResponse(responseCode = "403", description = "User is denied access to this ID"),
             @ApiResponse(responseCode = "404", description = "Cart not found")
     })
-    @CustomAccessRightsCheck(value = "#clientId")
     @GetMapping("/{clientId}")
+    @PermissionCheck("@permissionHandler.hasPermissionByClientId(#clientId)")
     public ResponseEntity<CartDTO> getCartByClientId(@Parameter(description = "ID of the client to be fetched", required = true, example = "1")
                                                      @PathVariable("clientId") final Long clientId) {
         CartDTO cartDTO = cartService.findCartDTOById(clientService.findClientById(clientId).getCartId());

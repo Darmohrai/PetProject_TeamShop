@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.teamshop.annotation.CustomAccessRightsCheck.CustomAccessRightsCheck;
+import org.example.teamshop.annotation.PermissionCheck.PermissionCheck;
 import org.example.teamshop.dto.ClientDTO;
 import org.example.teamshop.request.UpdateClientRequest;
 import org.example.teamshop.service.ClientService.IClientService;
@@ -26,12 +26,12 @@ public class ClientController {
             @ApiResponse(responseCode = "403", description = "User is denied access to this ID"),
             @ApiResponse(responseCode = "404", description = "Client not found")
     })
-    @CustomAccessRightsCheck(value = "#id")
-    @GetMapping("/{id}")
+    @GetMapping("/{clientId}")
+    @PermissionCheck("@permissionHandler.hasPermissionByClientId(#clientId)")
     public ResponseEntity<ClientDTO> getClientById(
             @Parameter(description = "ID of the client to be fetched", required = true, example = "1")
-            @PathVariable Long id) {
-        ClientDTO clientDTO = clientService.findClientById(id);
+            @PathVariable Long clientId) {
+        ClientDTO clientDTO = clientService.findClientById(clientId);
         return ResponseEntity.ok(clientDTO);
     }
 
@@ -43,12 +43,12 @@ public class ClientController {
             @ApiResponse(responseCode = "404", description = "Client with the provided ID not found."),
             @ApiResponse(responseCode = "500", description = "Internal server error. Something went wrong on the server side.")
     })
-    @CustomAccessRightsCheck(value = "#id")
-    @PutMapping("/{id}")
+    @PutMapping("/{clientId}")
+    @PermissionCheck("@permissionHandler.hasPermissionByClientId(#clientId)")
     public ResponseEntity<ClientDTO> updateClient(
-            @Parameter(description = "The client ID to update") @PathVariable Long id,
+            @Parameter(description = "The client ID to update") @PathVariable Long clientId,
             @Parameter(description = "The client data to update", required = true) @RequestBody @Valid UpdateClientRequest updateClientRequest) {
-        ClientDTO clientDTO = clientService.updateClient(updateClientRequest, id);
+        ClientDTO clientDTO = clientService.updateClient(updateClientRequest, clientId);
         return ResponseEntity.ok(clientDTO);
     }
 
@@ -59,11 +59,11 @@ public class ClientController {
             @ApiResponse(responseCode = "404", description = "Client with the provided ID not found."),
             @ApiResponse(responseCode = "500", description = "Internal server error. Something went wrong on the server side.")
     })
-    @CustomAccessRightsCheck(value = "#id")
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{clientId}")
+    @PermissionCheck("@permissionHandler.hasPermissionByClientId(#clientId)")
     public ResponseEntity<ClientDTO> deleteClient(
-            @Parameter(description = "The client ID to delete", required = true) @PathVariable Long id) {
-        clientService.deleteClient(id);
+            @Parameter(description = "The client ID to delete", required = true) @PathVariable Long clientId) {
+        clientService.deleteClient(clientId);
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,6 +1,7 @@
 package org.example.teamshop.controller;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ConstraintViolationException;
 import org.example.teamshop.Exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.nio.file.AccessDeniedException;
@@ -16,6 +18,11 @@ import java.util.Objects;
 
 @RestControllerAdvice
 public class GlobalExceptionHandlerController {
+    @ExceptionHandler(ConstraintViolationException.class)
+    public  ResponseEntity<String> handleConstraintViolationException(ConstraintViolationException ex, WebRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<String> handleResourceNotFoundException(ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
@@ -72,9 +79,9 @@ public class GlobalExceptionHandlerController {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(AccessDeniedRuntimeException.class)
+    @ExceptionHandler(PermissionDeniedException.class)
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
-    public ResponseEntity<String> handleAccessDeniedException(AccessDeniedRuntimeException ex) {
+    public ResponseEntity<String> handleAccessDeniedException(PermissionDeniedException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
@@ -88,6 +95,12 @@ public class GlobalExceptionHandlerController {
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public ResponseEntity<String> handleTokenExpiredException(JwtTokenExpiredException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(InternalSecurityLogicException.class)
+    public void handleInternalSecurityLogicException(InternalSecurityLogicException ex) {
+        System.out.println(ex.getMessage());
+        handleException(new Exception("Internal Security Logic Error", ex));
     }
 
     @ExceptionHandler(Exception.class)

@@ -1,4 +1,4 @@
-package org.example.teamshop.config;
+package org.example.teamshop.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

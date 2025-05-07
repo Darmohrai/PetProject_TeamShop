@@ -1,4 +1,4 @@
-package org.example.teamshop.config;
+package org.example.teamshop.security;
 
 import lombok.RequiredArgsConstructor;
 import org.example.teamshop.service.SecurityServices.CustomUserDetailsService.CustomUserDetailsService;

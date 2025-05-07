@@ -11,5 +11,9 @@ public interface ICartService {
 
     Cart findCartEntityById(Long clientId);
 
+    Cart findCartEntityByClientId(Long clientId);
+
+    CartDTO findCartDTOByClientId(Long clientId);
+
     void deleteCart(Long id);
 }

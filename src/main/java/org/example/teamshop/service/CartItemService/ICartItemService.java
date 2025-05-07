@@ -10,9 +10,9 @@ public interface ICartItemService {
 
     CartItemDTO updateCartItem(UpdateCartItemRequest request);
 
-    CartItemDTO getCartItemByProductId(Long productId, Long cartId);
+    CartItemDTO getCartItemByProductId(Long productId);
 
     List<CartItemDTO> getAllCartItems(Long cartId);
 
-    void deleteCartItem(Long productId, Long cartId);
+    void deleteCartItem(Long productId);
 }

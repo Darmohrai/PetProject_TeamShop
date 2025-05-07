@@ -1,15 +1,11 @@
 package org.example.teamshop.mapper;
 
-import lombok.RequiredArgsConstructor;
 import org.example.teamshop.dto.ClientDTO;
 import org.example.teamshop.model.Client;
 import org.example.teamshop.request.CreateClientRequest;
 import org.example.teamshop.request.UpdateClientRequest;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Component;
 
 @Mapper(componentModel = "spring")
 public interface ClientMapper {
