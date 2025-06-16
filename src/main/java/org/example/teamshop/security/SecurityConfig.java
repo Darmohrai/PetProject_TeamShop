@@ -37,6 +37,7 @@ public class SecurityConfig {
                         .requestMatchers("/dobry/ounivets/shop/admin/**").hasRole(ADMIN_ROLE)
                         .requestMatchers("/dobry/ounivets/shop/client/**").hasRole(CLIENT_ROLE)
                         .requestMatchers("/dobry/ounivets/shop/auth/**").permitAll()
+                        .requestMatchers("/dobry/ounivets/shop/product/**").permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",

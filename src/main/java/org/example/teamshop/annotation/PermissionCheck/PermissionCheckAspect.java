@@ -62,9 +62,9 @@ public class PermissionCheckAspect {
             context.setVariable(parameterNames[i], args[i]);
         }
 
-        // TODO: Improve logic, cause @ shouldn't work in this way
+        // TODO: Improve logic, cause @ would work not perfect in this way
         String correctedSpelExpression = spelExpression;
-        if(spelExpression.contains("@permissionHandler"))
+        if (spelExpression.contains("@permissionHandler"))
             correctedSpelExpression = spelExpression.replace("@permissionHandler", "#permissionHandler");
 
         context.setVariable("permissionHandler", permissionHandler);

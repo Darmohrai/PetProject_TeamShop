@@ -34,7 +34,7 @@ public class ImageService implements IImageService {
 
     @Override
     public ImageDto uploadImage(MultipartFile file, Long productId) {
-        try{
+        try {
             var product = productService.getProductById(productId);
             var image = imageMapper.toImageFromMultipartFile(file);
 
@@ -43,19 +43,19 @@ public class ImageService implements IImageService {
             image.setUrl("/dobry/ounivets/shop/images/image/" + image.getId());
 
             return imageMapper.toImageDto(imageRepository.save(image));
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new FailedOperationException("Image failed to upload");
         }
     }
 
     @Override
     public ImageDto updateImage(MultipartFile file, Long imageId) {
-        try{
+        try {
             var image = findImageById(imageId);
             image = imageMapper.toImageFromMultipartFile(file);
 
             return imageMapper.toImageDto(imageRepository.save(image));
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new FailedOperationException("Image failed to upload");
         }
     }

@@ -1,6 +1,6 @@
 package org.example.teamshop.service.ProductService;
 
-import jakarta.transaction.Transactional;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.example.teamshop.dto.ProductDto;
 import org.example.teamshop.mapper.ProductMapper;
@@ -24,13 +24,15 @@ public class ProductService implements IProductService {
 
     @Override
     public Product getProductById(Long id) {
+        if (id == null)
+            throw new IllegalArgumentException("Product Id cannot be null");
         return productRepository.
-                findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
+                findById(id).orElseThrow(() -> new EntityNotFoundException("Product not found"));
     }
 
     @Override
     public ProductDto getProductDtoById(Long id) {
-        var product = getProductById(id);
+        Product product = getProductById(id);
         return productMapper.toProductDto(product);
     }
 
@@ -60,7 +62,7 @@ public class ProductService implements IProductService {
 
     @Override
     public ProductDto createProduct(CreateProductRequest product) {
-        var newProduct = productMapper.fromCreateProductRequestToProduct(product);
+        Product newProduct = productMapper.fromCreateProductRequestToProduct(product);
 
         Category category = categoryService.returnNewCategoryIfNotExists(newProduct.getCategory());
 
@@ -72,7 +74,7 @@ public class ProductService implements IProductService {
 
     @Override
     public ProductDto updateProduct(Long id, UpdateProductRequest product) {
-        var oldProduct = getProductById(id);
+        Product oldProduct = getProductById(id);
         Category category = categoryService.returnNewCategoryIfNotExists(product.getCategory());
         oldProduct.setCategory(category);
         productMapper.fromUpdateProductRequestToProduct(product, oldProduct);
@@ -81,7 +83,7 @@ public class ProductService implements IProductService {
 
     @Override
     public void deleteProduct(Long id) {
-        var product = getProductById(id);
+        Product product = getProductById(id);
         productRepository.delete(product);
     }
 }

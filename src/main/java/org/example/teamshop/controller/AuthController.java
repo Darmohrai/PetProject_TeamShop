@@ -6,13 +6,17 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.teamshop.dto.AdminDto;
 import org.example.teamshop.dto.ClientDTO;
+import org.example.teamshop.request.CreateAdminRequest;
 import org.example.teamshop.request.CreateClientRequest;
 import org.example.teamshop.request.LoginRequest;
+import org.example.teamshop.service.AdminService.AdminService;
 import org.example.teamshop.service.ClientService.ClientService;
 import org.example.teamshop.service.SecurityServices.CustomUserDetailsService.CustomUserDetailsService;
 import org.example.teamshop.service.SecurityServices.JwtService.JwtService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -28,6 +32,7 @@ public class AuthController {
     private final JwtService jwtService;
     private final CustomUserDetailsService customUserDetailsService;
     private final ClientService clientService;
+    private final AdminService adminService;
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
@@ -52,5 +57,15 @@ public class AuthController {
             @RequestBody @Valid CreateClientRequest createClientRequest) {
         ClientDTO clientDTO = clientService.addClient(createClientRequest);
         return ResponseEntity.ok(clientDTO);
+    }
+
+    @PostMapping("/create-admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<AdminDto> createAdmin(
+            @Parameter(description = "JSON file of admin (without ID)", required = true)
+            @RequestBody @Valid CreateAdminRequest createAdminRequest
+    ) {
+        AdminDto adminDto = adminService.addAdmin(createAdminRequest);
+        return ResponseEntity.ok(adminDto);
     }
 }

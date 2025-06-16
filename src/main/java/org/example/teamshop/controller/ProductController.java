@@ -2,10 +2,10 @@ package org.example.teamshop.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.teamshop.dto.ProductDto;
-import org.example.teamshop.model.Product;
 import org.example.teamshop.request.CreateProductRequest;
 import org.example.teamshop.request.UpdateProductRequest;
 import org.example.teamshop.service.ProductService.ProductService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,17 +43,20 @@ public class ProductController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ProductDto createProduct(@RequestBody CreateProductRequest product) {
         return productService.createProduct(product);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ProductDto updateProduct(@PathVariable Long id,
                                     @RequestBody UpdateProductRequest product) {
         return productService.updateProduct(id, product);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
     }

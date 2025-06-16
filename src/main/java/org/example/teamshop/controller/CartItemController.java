@@ -11,7 +11,6 @@ import org.example.teamshop.dto.CartItemDTO;
 import org.example.teamshop.request.UpdateCartItemRequest;
 import org.example.teamshop.service.CartItemService.CartItemService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,7 +28,7 @@ public class CartItemController {
             @ApiResponse(responseCode = "404", description = "Item not found")
     })
     @GetMapping("/{productId}")
-    @PermissionCheck("#permissionHandler.hasPermissionByClientId(#clientId)")
+    @PermissionCheck("@permissionHandler.hasPermissionByClientId(#clientId)")
     public ResponseEntity<CartItemDTO> getCartItemByProductId(@Parameter(description = "Id of product")
                                                               @PathVariable Long productId,
                                                               @RequestBody Long clientId) {
@@ -44,7 +43,7 @@ public class CartItemController {
             @ApiResponse(responseCode = "404", description = "Cart not found")
     })
     @PutMapping("/put")
-    @PermissionCheck("#permissionHandler.hasPermissionForCart(#updateCartItemRequest.cartId)")
+    @PermissionCheck("@permissionHandler.hasPermissionForCart(#updateCartItemRequest.cartId)")
     public ResponseEntity<CartItemDTO> putCartItem(@RequestBody @Valid UpdateCartItemRequest updateCartItemRequest) {
         CartItemDTO cartItemDTO = cartItemService.updateCartItem(updateCartItemRequest);
         return ResponseEntity.ok().body(cartItemDTO);

@@ -6,14 +6,16 @@ import org.example.teamshop.Exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import java.nio.file.AccessDeniedException;
 import java.util.Objects;
 
 @RestControllerAdvice
@@ -73,23 +75,29 @@ public class GlobalExceptionHandlerController {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    @ResponseStatus(value = HttpStatus.FORBIDDEN)
-    public ResponseEntity<String> handleAccessDeniedException(AccessDeniedException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
+    @ExceptionHandler(NoResourceFoundException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ResponseEntity<String> handleNoResourceFoundException(NoResourceFoundException ex){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    @ResponseStatus(value = HttpStatus.METHOD_NOT_ALLOWED)
+    public ResponseEntity<String> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(ex.getMethod());
     }
 
     @ExceptionHandler(PermissionDeniedException.class)
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
-    public ResponseEntity<String> handleAccessDeniedException(PermissionDeniedException ex) {
+    public ResponseEntity<String> handlePermissionDeniedException(PermissionDeniedException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
-//    @ExceptionHandler(AuthorizationDeniedException.class)
-//    @ResponseStatus(value = HttpStatus.FORBIDDEN)
-//    public ResponseEntity<String> handleAuthorizationDeniedException(AuthorizationDeniedException ex) {
-//        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
-//    }
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<String> handleAuthorizationDeniedException(AuthorizationDeniedException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
 
     @ExceptionHandler(JwtTokenExpiredException.class)
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
@@ -106,6 +114,6 @@ public class GlobalExceptionHandlerController {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<String> handleException(Exception ex) {
-        return  new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

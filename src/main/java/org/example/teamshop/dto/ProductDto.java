@@ -15,6 +15,6 @@ public class ProductDto {
     private Long id;
     private String name;
     private BigDecimal price;
-    private Set<ImageDto> images;
     private Category category;
+    private Set<ImageDto> images;
 }
