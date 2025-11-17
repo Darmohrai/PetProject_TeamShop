@@ -58,11 +58,10 @@ jobs:
         run: |
           newman run tests/collection.json -e tests/env.json -r cli,htmlextra --reporter-htmlextra-export newman/report.html
 
-      # 9. Зберігаємо звіт як артефакт (можна скачати після завершення)
-      # Цей крок виконається навіть якщо тести впадуть
+      # 9. Зберігаємо звіт як артефакт
       - name: Upload Test Report
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4  # <-- БУЛО v3, СТАЛО v4
         with:
           name: api-test-report
           path: newman/report.html
