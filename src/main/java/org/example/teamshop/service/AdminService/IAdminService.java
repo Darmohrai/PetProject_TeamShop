@@ -7,7 +7,7 @@ import org.example.teamshop.request.UpdateAdminRequest;
 
 public interface IAdminService {
 
-    Admin findAdminById(Long id);
+    Admin getAdminById(Long id);
 
     AdminDto addAdmin(CreateAdminRequest createdAdmin);
 

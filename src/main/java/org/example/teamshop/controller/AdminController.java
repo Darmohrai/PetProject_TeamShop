@@ -2,7 +2,6 @@ package org.example.teamshop.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.teamshop.Exception.ResourceNotFoundException;
 import org.example.teamshop.dto.AdminDto;
 import org.example.teamshop.request.CreateAdminRequest;
 import org.example.teamshop.request.UpdateAdminRequest;
@@ -21,7 +20,7 @@ public class AdminController {
     @GetMapping("{id}")
     public ResponseEntity<ApiResponse> getAdmin(@PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.OK).
-                body(new ApiResponse("", adminService.findAdminById(id)));
+                body(new ApiResponse("", adminService.getAdminById(id)));
     }
 
     @PostMapping

@@ -1,0 +1,73 @@
+name: TeamShop CI/CD Pipeline
+
+# Запускати цей сценарій при кожному пуші в гілки master або main
+on:
+  push:
+    branches: [ "master", "main" ]
+  pull_request:
+    branches: [ "master", "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Завантажуємо код з репозиторію
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Встановлюємо Java 17 (як у вашому pom.xml)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      # 3. Надаємо права на виконання скрипту Maven
+      - name: Grant execute permission for mvnw
+        run: chmod +x mvnw
+
+      # 4. Збірка проекту та запуск Unit-тестів (JUnit)
+      # Це перевірить ваші тести в папці src/test/java
+      - name: Build with Maven & Run Unit Tests
+        run: ./mvnw clean package -DskipTests=false
+
+      # 5. Встановлюємо Node.js для Newman
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # 6. Встановлюємо Newman та HTML-репортер
+      - name: Install Newman
+        run: npm install -g newman newman-reporter-htmlextra
+
+      # 7. Запускаємо Spring Boot сервер у фоновому режимі (&)
+      # Щоб ми могли запустити API тести проти нього
+      - name: Start Application
+        run: |
+          nohup ./mvnw spring-boot:run > app.log 2>&1 &
+          echo "Waiting for server to start..."
+          # Чекаємо, поки сервер відповість (максимум 2 хвилини)
+          timeout 120s bash -c 'until curl -s http://localhost:8080/dobry/ounivets/shop/product > /dev/null; do sleep 5; done'
+          echo "Server is up!"
+
+      # 8. Запускаємо Postman колекцію через Newman
+      - name: Run Postman API Tests
+        run: |
+          newman run tests/collection.json -e tests/env.json -r cli,htmlextra --reporter-htmlextra-export newman/report.html
+
+      # 9. Зберігаємо звіт як артефакт (можна скачати після завершення)
+      # Цей крок виконається навіть якщо тести впадуть
+      - name: Upload Test Report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: api-test-report
+          path: newman/report.html
+
+      # 10. Виводимо логи сервера, якщо щось пішло не так
+      - name: Show Application Logs (on failure)
+        if: failure()
+        run: cat app.log

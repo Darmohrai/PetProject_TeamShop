@@ -6,6 +6,7 @@ import org.example.teamshop.Exception.ResourceNotFoundException;
 import org.example.teamshop.model.Category;
 import org.example.teamshop.repository.CategoryRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -32,6 +33,7 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
+    @Transactional
     public Category createCategory(Category category) {
         if (categoryRepository.existsByName(category.getName())) {
             throw new AlreadyExistingResourceException("Category already exists");

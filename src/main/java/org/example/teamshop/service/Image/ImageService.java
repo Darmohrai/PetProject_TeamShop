@@ -9,6 +9,7 @@ import org.example.teamshop.model.Image;
 import org.example.teamshop.repository.ImageRepository;
 import org.example.teamshop.service.ProductService.IProductService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -21,7 +22,7 @@ public class ImageService implements IImageService {
     private final IProductService productService;
     private final ImageMapper imageMapper;
 
-    private Image findImageById(Long id) {
+    private Image getImageById(Long id) {
         return imageRepository.findById(id).
                 orElseThrow(() -> new ResourceNotFoundException("Image not found"));
     }
@@ -33,6 +34,7 @@ public class ImageService implements IImageService {
     }
 
     @Override
+    @Transactional
     public ImageDto uploadImage(MultipartFile file, Long productId) {
         try {
             var product = productService.getProductById(productId);
@@ -49,9 +51,10 @@ public class ImageService implements IImageService {
     }
 
     @Override
+    @Transactional
     public ImageDto updateImage(MultipartFile file, Long imageId) {
         try {
-            var image = findImageById(imageId);
+            var image = getImageById(imageId);
             image = imageMapper.toImageFromMultipartFile(file);
 
             return imageMapper.toImageDto(imageRepository.save(image));
@@ -61,8 +64,9 @@ public class ImageService implements IImageService {
     }
 
     @Override
+    @Transactional
     public void deleteImage(Long imageId) {
-        var image = findImageById(imageId);
+        var image = getImageById(imageId);
         imageRepository.delete(image);
     }
 }

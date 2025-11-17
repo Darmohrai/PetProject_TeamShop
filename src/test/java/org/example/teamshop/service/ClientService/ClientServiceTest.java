@@ -45,7 +45,7 @@ public class ClientServiceTest {
     private CartService cartService;
 
     @Test
-    public void testFindClientById_ClientExist() {
+    public void testGetClientById_ClientExist() {
         Long clientId = 1L;
         Client client = new Client(1L, "John", "12345", "email@gmail.com", 1L, 1);
         ClientDTO clientDTO = new ClientDTO(1L, "John", "12345", "email@gmail.com", 1L, 1);
@@ -53,7 +53,7 @@ public class ClientServiceTest {
         when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
         when(clientMapper.clientToClientDTO(client)).thenReturn(clientDTO);
 
-        ClientDTO result = clientService.findClientById(clientId);
+        ClientDTO result = clientService.getClientById(clientId);
 
         assertNotNull(result);
         assertEquals(clientId, result.getId());
@@ -68,13 +68,13 @@ public class ClientServiceTest {
     }
 
     @Test
-    public void testFindClientById_ShouldThrowException_WhenClientNotFound() {
+    public void testGetClientById_ShouldThrowException_WhenClientNotFound() {
         Long clientId = 2L;
 
         when(clientRepository.findById(clientId)).thenReturn(Optional.empty());
 
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
-                clientService.findClientById(clientId));
+                clientService.getClientById(clientId));
 
         assertEquals("Client with ID " + clientId + " not found", exception.getMessage());
 

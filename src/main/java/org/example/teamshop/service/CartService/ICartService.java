@@ -7,13 +7,13 @@ public interface ICartService {
     // return cart ID
     Long createNewCart(Long clientId);
 
-    CartDTO findCartDTOById(Long id);
+    CartDTO getCartDTOById(Long id);
 
-    Cart findCartEntityById(Long clientId);
+    Cart getCartEntityById(Long clientId);
 
-    Cart findCartEntityByClientId(Long clientId);
+    Cart getCartEntityByClientId(Long clientId);
 
-    CartDTO findCartDTOByClientId(Long clientId);
+    CartDTO getCartDTOByClientId(Long clientId);
 
     void deleteCart(Long id);
 }

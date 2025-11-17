@@ -31,7 +31,7 @@ public class PermissionHandler {
 
     public ClientDTO getCurrentClient() {
         UserDetails user = getCurrentUser();
-        return clientService.findClientByEmail(user.getUsername());
+        return clientService.getClientByEmail(user.getUsername());
     }
 
 

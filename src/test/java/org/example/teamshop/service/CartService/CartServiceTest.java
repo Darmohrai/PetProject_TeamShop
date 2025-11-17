@@ -60,7 +60,7 @@ public class CartServiceTest {
     }
 
     @Test
-    public void testFindCartDTOById_Successfully_AndReturnCartDTO() {
+    public void testGetCartDTOById_Successfully_AndReturnCartDTO() {
         Long cartId = 1L;
         Cart cart = new Cart(1L, 1L, new ArrayList<>());
         CartDTO expectedCartDTO = new CartDTO(1L, 1L, new ArrayList<>());
@@ -68,7 +68,7 @@ public class CartServiceTest {
         when(cartRepository.findById(cartId)).thenReturn(Optional.of(cart));
         when(cartMapper.toCartDTO(cart)).thenReturn(expectedCartDTO);
 
-        CartDTO cartDTO = cartService.findCartDTOById(cartId);
+        CartDTO cartDTO = cartService.getCartDTOById(cartId);
 
         assertNotNull(cartDTO);
         assertEquals(expectedCartDTO.getId(), cartDTO.getId());
@@ -79,11 +79,11 @@ public class CartServiceTest {
     }
 
     @Test
-    public void testFindCartDTOById_ClientIdIsNull_ShouldThrowException() {
+    public void testGetCartDTOById_ClientIdIsNull_ShouldThrowException() {
         Long cartId = null;
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            cartService.findCartDTOById(cartId);
+            cartService.getCartDTOById(cartId);
         });
 
         assertEquals("Cart Id cannot be null", exception.getMessage());
@@ -92,13 +92,13 @@ public class CartServiceTest {
     }
 
     @Test
-    public void testFindCartDTOById_IdDoesNotExist_ShouldThrowException() {
+    public void testGetCartDTOById_IdDoesNotExist_ShouldThrowException() {
         Long cartId = 999L;
 
         when(cartRepository.findById(cartId)).thenReturn(Optional.empty());
 
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            cartService.findCartDTOById(cartId);
+            cartService.getCartDTOById(cartId);
         });
 
         assertEquals("Cart not found", exception.getMessage());
@@ -106,22 +106,22 @@ public class CartServiceTest {
     }
 
     @Test
-    public void testFindCartEntityById_Successfully_AndReturnCartEntity() {
+    public void testGetCartEntityById_Successfully_AndReturnCartEntity() {
         Long cartId = 1L;
         Cart cart = new Cart(1L, 1L, new ArrayList<>());
 
         when(cartRepository.findById(cartId)).thenReturn(Optional.of(cart));
 
-        assertEquals(cart, cartService.findCartEntityById(cartId));
+        assertEquals(cart, cartService.getCartEntityById(cartId));
         verify(cartRepository, times(1)).findById(cartId);
     }
 
     @Test
-    public void testFindCartEntityById_CartIdIsNull_ShouldThrowException() {
+    public void testGetCartEntityById_CartIdIsNull_ShouldThrowException() {
         Long cartId = null;
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            cartService.findCartEntityById(cartId);
+            cartService.getCartEntityById(cartId);
         });
 
         assertEquals("Cart Id cannot be null", exception.getMessage());
@@ -129,13 +129,13 @@ public class CartServiceTest {
     }
 
     @Test
-    public void testFindCartEntityById_CartIdDoesNotExist_ShouldThrowException() {
+    public void testGetCartEntityById_CartIdDoesNotExist_ShouldThrowException() {
         Long cartId = 999L;
 
         when(cartRepository.findById(cartId)).thenReturn(Optional.empty());
 
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            cartService.findCartEntityById(cartId);
+            cartService.getCartEntityById(cartId);
         });
 
         assertEquals("Cart not found", exception.getMessage());

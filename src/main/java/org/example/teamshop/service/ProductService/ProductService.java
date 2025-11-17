@@ -11,6 +11,7 @@ import org.example.teamshop.request.CreateProductRequest;
 import org.example.teamshop.request.UpdateProductRequest;
 import org.example.teamshop.service.Category.ICategoryService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,6 +62,7 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    @Transactional
     public ProductDto createProduct(CreateProductRequest product) {
         Product newProduct = productMapper.fromCreateProductRequestToProduct(product);
 
@@ -73,6 +75,7 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    @Transactional
     public ProductDto updateProduct(Long id, UpdateProductRequest product) {
         Product oldProduct = getProductById(id);
         Category category = categoryService.returnNewCategoryIfNotExists(product.getCategory());
@@ -82,6 +85,7 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    @Transactional
     public void deleteProduct(Long id) {
         Product product = getProductById(id);
         productRepository.delete(product);

@@ -33,7 +33,7 @@ public class CartController {
     @PermissionCheck("@permissionHandler.hasPermissionByClientId(#clientId)")
     public ResponseEntity<CartDTO> getCartByClientId(@Parameter(description = "ID of the client to be fetched", required = true, example = "1")
                                                      @PathVariable("clientId") final Long clientId) {
-        CartDTO cartDTO = cartService.findCartDTOById(clientService.findClientById(clientId).getCartId());
+        CartDTO cartDTO = cartService.getCartDTOById(clientService.getClientById(clientId).getCartId());
         return ResponseEntity.ok(cartDTO);
     }
 }

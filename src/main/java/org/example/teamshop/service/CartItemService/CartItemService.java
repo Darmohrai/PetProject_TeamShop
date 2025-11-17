@@ -2,10 +2,8 @@ package org.example.teamshop.service.CartItemService;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.example.teamshop.Exception.PermissionDeniedException;
 import org.example.teamshop.dto.CartDTO;
 import org.example.teamshop.dto.CartItemDTO;
-import org.example.teamshop.dto.ClientDTO;
 import org.example.teamshop.mapper.CartItemMapper;
 import org.example.teamshop.model.Cart;
 import org.example.teamshop.model.CartItem;
@@ -16,6 +14,7 @@ import org.example.teamshop.request.UpdateCartItemRequest;
 import org.example.teamshop.service.CartService.CartService;
 import org.example.teamshop.service.ClientService.ClientService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Iterator;
 import java.util.List;
@@ -32,10 +31,11 @@ public class CartItemService implements ICartItemService {
 
 
     @Override
+    @Transactional
     public CartItemDTO addNewCartItem(UpdateCartItemRequest request) {
         if (!productRepository.existsById(request.getProductId()))
             throw new EntityNotFoundException("Product with ID " + request.getProductId() + " not found");
-        Cart cart = cartService.findCartEntityById(request.getCartId());
+        Cart cart = cartService.getCartEntityById(request.getCartId());
         CartItem cartItem = cartItemMapper.toCartItemFromUpdateCartItemRequest(request);
         cartItem.setCart(cart);
         cartItemRepository.save(cartItem);
@@ -45,8 +45,9 @@ public class CartItemService implements ICartItemService {
     }
 
     @Override
+    @Transactional
     public CartItemDTO updateCartItem(UpdateCartItemRequest request) {
-        Cart cart = cartService.findCartEntityById(request.getCartId());
+        Cart cart = cartService.getCartEntityById(request.getCartId());
         if (request.getQuantity() == 0) {
             deleteCartItem(request.getProductId());
             return null;
@@ -66,7 +67,7 @@ public class CartItemService implements ICartItemService {
 
     @Override
     public CartItemDTO getCartItemByProductId(Long productId) {
-        CartDTO cartDTO = cartService.findCartDTOByClientId(clientService.findAuthorizedClientId());
+        CartDTO cartDTO = cartService.getCartDTOByClientId(clientService.getAuthorizedClientId());
         return cartDTO.getItems().stream()
                 .filter(item -> item.getProductId().equals(productId))
                 .findFirst()
@@ -75,13 +76,14 @@ public class CartItemService implements ICartItemService {
 
     @Override
     public List<CartItemDTO> getAllCartItems(Long clientId) {
-        CartDTO cartDTO = cartService.findCartDTOByClientId(clientId);
+        CartDTO cartDTO = cartService.getCartDTOByClientId(clientId);
         return cartDTO.getItems();
     }
 
     @Override
+    @Transactional
     public void deleteCartItem(Long productId) {
-        Cart cart = cartService.findCartEntityByClientId(clientService.findAuthorizedClientId());
+        Cart cart = cartService.getCartEntityByClientId(clientService.getAuthorizedClientId());
         Iterator<CartItem> iterator = cart.getItems().iterator();
         while (iterator.hasNext()) {
             CartItem cartItem = iterator.next();

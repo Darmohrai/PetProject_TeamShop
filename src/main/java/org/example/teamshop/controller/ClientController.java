@@ -31,7 +31,7 @@ public class ClientController {
     public ResponseEntity<ClientDTO> getClientById(
             @Parameter(description = "ID of the client to be fetched", required = true, example = "1")
             @PathVariable Long clientId) {
-        ClientDTO clientDTO = clientService.findClientById(clientId);
+        ClientDTO clientDTO = clientService.getClientById(clientId);
         return ResponseEntity.ok(clientDTO);
     }
 

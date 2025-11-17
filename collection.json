@@ -1,0 +1,181 @@
+{
+	"info": {
+		"_postman_id": "da2cc0e3-3f0d-4341-9923-7bd976cf2fc1",
+		"name": "TeamShop Automation Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39313089"
+	},
+	"item": [
+		{
+			"name": "registration",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1. Перевірка статус коду 200\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// 2. Перевірка, що повернувся ID та Email\r",
+							"pm.test(\"Response contains ID and Email\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property(\"id\");\r",
+							"    pm.expect(jsonData).to.have.property(\"email\");\r",
+							"\r",
+							"    // Зберігаємо email та password для наступного кроку (логіну)\r",
+							"    // Оскільки ми використали $timestamp в Body, нам треба взяти email з відповіді\r",
+							"    pm.environment.set(\"saved_email\", jsonData.email);\r",
+							"    // Пароль ми знаємо сталий\r",
+							"    pm.environment.set(\"saved_password\", \"StrongP@ss1\");\r",
+							"    // Зберігаємо ID для перевірки профілю\r",
+							"    pm.environment.set(\"saved_id\", jsonData.id);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Test User\",\r\n  \"password\": \"StrongP@ss1\",\r\n  \"email\": \"auto_test_{{$timestamp}}@example.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/register",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1. Перевірка статус коду 200\r",
+							"pm.test(\"Login successful - Status 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// 2. Перевірка, що тіло відповіді не пусте (там має бути токен)\r",
+							"pm.test(\"Response contains Token string\", function () {\r",
+							"    var token = pm.response.text();\r",
+							"    pm.expect(token).to.be.a('string');\r",
+							"    pm.expect(token.length).to.be.above(10);\r",
+							"\r",
+							"    // Зберігаємо токен у змінні середовища для наступних запитів\r",
+							"    pm.environment.set(\"jwt_token\", token);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"{{saved_email}}\",\r\n  \"password\": \"{{saved_password}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getClient",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1. Перевірка статус коду 200 (Якщо токен працює)\r",
+							"pm.test(\"Get Client Profile - Status 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// 2. Перевірка даних JSON\r",
+							"pm.test(\"Check if returned ID matches requested ID\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    var savedId = pm.environment.get(\"saved_id\");\r",
+							"\r",
+							"    // Порівнюємо ID з відповіді з тим, що ми зберегли при реєстрації\r",
+							"    // Важливо: saved_id може бути string або number, приводимо типи\r",
+							"    pm.expect(jsonData.id).to.eql(Number(savedId));\r",
+							"    pm.expect(jsonData.email).to.eql(pm.environment.get(\"saved_email\"));\r",
+							"});\r",
+							"\r",
+							"// 3. Перевірка часу відповіді (Non-functional requirement)\r",
+							"pm.test(\"Response time is less than 500ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+							"}); "
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/client/{{saved_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"client",
+						"{{saved_id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

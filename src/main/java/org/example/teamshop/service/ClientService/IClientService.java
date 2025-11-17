@@ -6,11 +6,17 @@ import org.example.teamshop.request.UpdateClientRequest;
 
 public interface IClientService {
 
-    ClientDTO findClientById(Long id);
+    ClientDTO getClientById(Long id);
 
     ClientDTO addClient(CreateClientRequest createClientRequest);
 
     ClientDTO updateClient(UpdateClientRequest updateClientRequest, Long id);
 
     void deleteClient(Long id);
+
+    ClientDTO getClientByEmail(String email);
+
+    Long getAuthorizedClientId();
+
+    String getAuthorizedClientEmail();
 }

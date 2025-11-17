@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -27,13 +28,14 @@ public class ClientService implements IClientService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public ClientDTO findClientById(Long id) {
+    public ClientDTO getClientById(Long id) {
         return clientRepository.findById(id)
                 .map(mapper::clientToClientDTO)
                 .orElseThrow(() -> new EntityNotFoundException("Client with ID " + id + " not found"));
     }
 
     @Override
+    @Transactional
     public ClientDTO addClient(CreateClientRequest createClientRequest) {
         if (clientRepository.existsByEmail(createClientRequest.getEmail())) {
             throw new AlreadyExistingResourceException("A client with this email already exists");
@@ -55,6 +57,7 @@ public class ClientService implements IClientService {
 
 
     @Override
+    @Transactional
     public ClientDTO updateClient(UpdateClientRequest updateClientRequest, Long id) {
         Client client = clientRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Client not found"));
         mapper.updateClientRequestToClient(updateClientRequest, client);
@@ -63,23 +66,27 @@ public class ClientService implements IClientService {
     }
 
     @Override
+    @Transactional
     public void deleteClient(Long id) {
         Client client = clientRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Client not found"));
         cartService.deleteCart(client.getCartId());
         clientRepository.delete(client);
     }
 
-    public ClientDTO findClientByEmail(String email) {
+    @Override
+    public ClientDTO getClientByEmail(String email) {
         Client client = clientRepository.findByEmail(email);
         return mapper.clientToClientDTO(client);
     }
 
-    public Long findAuthorizedClientId() {
-        Client client = clientRepository.findByEmail(findAuthorizedClientEmail());
+    @Override
+    public Long getAuthorizedClientId() {
+        Client client = clientRepository.findByEmail(getAuthorizedClientEmail());
         return client.getId();
     }
 
-    public String findAuthorizedClientEmail() {
+    @Override
+    public String getAuthorizedClientEmail() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return auth.getName();
     }
